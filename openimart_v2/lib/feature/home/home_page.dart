@@ -4,8 +4,64 @@ import 'package:flutter/material.dart';
 import 'dart:async';
 
 import 'package:openimart_v2/feature/home/widget/voucher_and_discount.dart'; // Import the SponsoredSection widget
+import 'package:openimart_v2/feature/home/widget/top_buttons.dart'; // Add this import
+import 'package:openimart_v2/feature/home/widget/flash_sale_widget.dart'; // Add this import
+import 'package:openimart_v2/feature/message/message_page.dart';
+import 'package:openimart_v2/feature/cart/cart_page.dart';
+import 'package:openimart_v2/feature/profile/profile_page.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _pages = [
+    _HomeContent(),
+    MessagePage(),
+    CartPage(),
+    ProfilePage(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: _pages[_selectedIndex],
+      bottomNavigationBar: BottomNavigationBar(
+        type: BottomNavigationBarType.fixed,
+        currentIndex: _selectedIndex,
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.message),
+            label: 'Message',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.shopping_cart),
+            label: 'Cart',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// Move existing HomePage content to a new widget
+class _HomeContent extends StatelessWidget {
   // Sample banner images - replace with your actual images
   final List<String> bannerImages = [
     'assets/banners/banner1.png',
@@ -69,7 +125,20 @@ class HomePage extends StatelessWidget {
                       height: 200,
                     ),
                     const SizedBox(height: 8),
+                    const TopButtons(), // Add this
+                    const SizedBox(height: 8), // Add this
                     VoucherAndDiscount(),
+                    const SizedBox(height: 8),
+                    FlashSale(items: [
+                      {
+                        'image': 'assets/flash_sale/item1.png',
+                        'discount': '50%',
+                        'price': '\$49.99',
+                        'originalPrice': '\$99.99',
+                        'stock': '70'
+                      },
+                      // Add more items as needed
+                    ]),
                   ],
                 ),
               ),
