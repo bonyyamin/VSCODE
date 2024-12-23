@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:openimart_v2/feature/vendor/chat_message.dart';
+import 'package:openimart_v2/feature/vendor/vendor.dart';
 
 class VendorChat extends StatefulWidget {
+  final Vendor vendor;
+
+  VendorChat({required this.vendor});
+
   @override
   _VendorChatState createState() => _VendorChatState();
 }
@@ -8,7 +14,6 @@ class VendorChat extends StatefulWidget {
 class _VendorChatState extends State<VendorChat> {
   final TextEditingController _messageController = TextEditingController();
   final List<ChatMessage> _messages = [];
-  bool _isFollowing = false;
 
   @override
   void initState() {
@@ -16,14 +21,9 @@ class _VendorChatState extends State<VendorChat> {
     // Simulate some initial messages
     _messages.addAll([
       ChatMessage(
-        message: "Welcome! How can I help you today?",
+        message: "Hello! How can I assist you?",
         isVendor: true,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 30)),
-      ),
-      ChatMessage(
-        message: "Hi! I'm interested in your products",
-        isVendor: false,
-        timestamp: DateTime.now().subtract(const Duration(minutes: 25)),
+        timestamp: DateTime.now().subtract(Duration(minutes: 10)),
       ),
     ]);
   }
@@ -36,35 +36,20 @@ class _VendorChatState extends State<VendorChat> {
         title: Row(
           children: [
             CircleAvatar(
-              backgroundImage: AssetImage('assets/vendor/profile.png'),
+              backgroundImage: AssetImage(widget.vendor.profilePicture),
               radius: 20,
             ),
             SizedBox(width: 10),
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Store Name', style: TextStyle(fontSize: 16)),
-                Text('Online', style: TextStyle(fontSize: 12)),
+                Text(widget.vendor.name, style: TextStyle(fontSize: 16)),
+                Text(widget.vendor.isOnline ? 'Online' : 'Offline',
+                    style: TextStyle(fontSize: 12)),
               ],
             ),
           ],
         ),
-        actions: [
-          IconButton(
-            icon: Icon(_isFollowing ? Icons.person_remove : Icons.person_add),
-            onPressed: () {
-              setState(() => _isFollowing = !_isFollowing);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(_isFollowing
-                      ? 'You are now following this store'
-                      : 'You unfollowed this store'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-          ),
-        ],
       ),
       body: Column(
         children: [
@@ -113,9 +98,8 @@ class _VendorChatState extends State<VendorChat> {
             Text(
               _formatTime(message.timestamp),
               style: TextStyle(
-                fontSize: 10,
-                color: message.isVendor ? Colors.black54 : Colors.white70,
-              ),
+                  fontSize: 10,
+                  color: message.isVendor ? Colors.black54 : Colors.white70),
             ),
           ],
         ),
@@ -130,20 +114,14 @@ class _VendorChatState extends State<VendorChat> {
         color: Colors.white,
         boxShadow: [
           BoxShadow(
-            offset: Offset(0, -2),
-            blurRadius: 4,
-            color: Colors.black.withOpacity(0.1),
-          ),
+              offset: Offset(0, -2),
+              blurRadius: 4,
+              color: Colors.black.withOpacity(0.1)),
         ],
       ),
       child: Row(
         children: [
-          IconButton(
-            icon: Icon(Icons.attach_file),
-            onPressed: () {
-              // Implement file attachment
-            },
-          ),
+          IconButton(icon: Icon(Icons.attach_file), onPressed: () {}),
           Expanded(
             child: TextField(
               controller: _messageController,
@@ -161,9 +139,8 @@ class _VendorChatState extends State<VendorChat> {
             ),
           ),
           IconButton(
-            icon: Icon(Icons.send, color: Theme.of(context).primaryColor),
-            onPressed: _sendMessage,
-          ),
+              icon: Icon(Icons.send, color: Theme.of(context).primaryColor),
+              onPressed: _sendMessage),
         ],
       ),
     );
@@ -172,13 +149,11 @@ class _VendorChatState extends State<VendorChat> {
   void _sendMessage() {
     if (_messageController.text.trim().isNotEmpty) {
       setState(() {
-        _messages.add(
-          ChatMessage(
-            message: _messageController.text,
-            isVendor: false,
-            timestamp: DateTime.now(),
-          ),
-        );
+        _messages.add(ChatMessage(
+          message: _messageController.text,
+          isVendor: false,
+          timestamp: DateTime.now(),
+        ));
       });
       _messageController.clear();
     }
@@ -187,16 +162,4 @@ class _VendorChatState extends State<VendorChat> {
   String _formatTime(DateTime timestamp) {
     return '${timestamp.hour}:${timestamp.minute.toString().padLeft(2, '0')}';
   }
-}
-
-class ChatMessage {
-  final String message;
-  final bool isVendor;
-  final DateTime timestamp;
-
-  ChatMessage({
-    required this.message,
-    required this.isVendor,
-    required this.timestamp,
-  });
 }

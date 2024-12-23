@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:openimart_v2/feature/vendor/inbox.dart';
+import '../vendor/vendor_promos.dart';
+import 'order.dart';
+import 'activities.dart';
 
 class MessagePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text("Messages",
             style: TextStyle(fontWeight: FontWeight.bold)),
         centerTitle: false,
@@ -30,10 +35,38 @@ class MessagePage extends StatelessWidget {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildCategoryIcon(Icons.chat_bubble_outline, "Chats"),
-                _buildCategoryIcon(Icons.inventory_2_outlined, "Orders"),
-                _buildCategoryIcon(Icons.local_activity_outlined, "Activities"),
-                _buildCategoryIcon(Icons.campaign_outlined, "Promos"),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => InboxScreen()),
+                  ),
+                  child: _buildCategoryIcon(Icons.chat_bubble_outline, "Chats"),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => const OrdersPage()),
+                  ),
+                  child:
+                      _buildCategoryIcon(Icons.inventory_2_outlined, "Orders"),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const ActivitiesPage()),
+                  ),
+                  child: _buildCategoryIcon(
+                      Icons.local_activity_outlined, "Activities"),
+                ),
+                GestureDetector(
+                  onTap: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => const VendorPromos()),
+                  ),
+                  child: _buildCategoryIcon(Icons.campaign_outlined, "Promos"),
+                ),
               ],
             ),
           ),
