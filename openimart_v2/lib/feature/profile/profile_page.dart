@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:openimart_v2/feature/profile/options/account_settings.dart';
 import 'package:openimart_v2/feature/profile/options/contact_customer_care.dart';
 import 'package:openimart_v2/feature/profile/options/help_center.dart';
 import 'package:openimart_v2/feature/profile/options/my_affilicates.dart';
@@ -19,6 +20,23 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        actions: [
+          IconButton(
+            icon: Icon(Icons.settings, color: Colors.black),
+            onPressed: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => SettingsPage(),
+                ),
+              );
+            },
+          ),
+        ],
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(
@@ -37,22 +55,18 @@ class ProfilePage extends StatelessWidget {
   Widget _buildProfileHeader() {
     return Container(
       padding: EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          colors: [Colors.blue.shade400, Colors.blue.shade700],
-        ),
-      ),
+      decoration: BoxDecoration(),
       child: Column(
         children: [
           CircleAvatar(
             radius: 40,
-            backgroundImage: AssetImage('assets/default_avatar.png'),
+            backgroundImage: AssetImage('assets/images/bunbun1.png'),
           ),
           SizedBox(height: 12),
           Text(
             'Welcome User',
             style: TextStyle(
-              color: Colors.white,
+              color: Colors.black,
               fontSize: 20,
               fontWeight: FontWeight.bold,
             ),

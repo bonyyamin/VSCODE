@@ -7,19 +7,74 @@ class CartPage extends StatefulWidget {
 
 class _CartPageState extends State<CartPage> {
   final ValueNotifier<Set<int>> _selectedItems = ValueNotifier<Set<int>>({});
+  final List<CartItem> _cartItems = [
+    CartItem(
+      id: 1,
+      shopName: "AKASH Digital TV",
+      itemName: "AKASH HD Connection",
+      itemDetails: "Akash, Color Family: Black",
+      price: 4299.0,
+      quantity: 1,
+      isAvailable: true,
+    ),
+    CartItem(
+      id: 2,
+      shopName: "",
+      itemName:
+          "Hair Bands for Kids Girl's Mini Elastic Soft Rubber Hair Bands - 100 Piece",
+      itemDetails: "No Brand, Color Family: Multicolor",
+      price: 117.0,
+      quantity: 0,
+      isAvailable: false,
+    ),
+  ];
+
+  double _subtotal = 0.0;
+  double _discount = 0.0;
+  double _shippingFee = 0.0;
+  double _tax = 0.0;
+  final double _taxRate = 0.08; // 8% tax rate
+
+  @override
+  void dispose() {
+    _selectedItems.dispose();
+    super.dispose();
+  }
+
+  void _calculatePricing() {
+    setState(() {
+      _subtotal = _cartItems.fold(
+        0,
+        (sum, item) => sum + (item.price * item.quantity),
+      );
+      _tax = _subtotal * _taxRate;
+      _discount = 0; // No discount applied in this logic
+    });
+  }
+
+  double get totalAmount => _subtotal - _discount + _shippingFee + _tax;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("My Cart",
-            style: TextStyle(fontWeight: FontWeight.bold)),
+        automaticallyImplyLeading: false,
+        title: const Text(
+          "My Cart",
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
         centerTitle: false,
         elevation: 0,
         actions: [
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            onPressed: () {},
+            onPressed: () {
+              setState(() {
+                _selectedItems.value.clear();
+                _cartItems.removeWhere((item) => item.quantity > 0);
+                _calculatePricing();
+              });
+            },
           ),
         ],
       ),
@@ -32,7 +87,7 @@ class _CartPageState extends State<CartPage> {
                 const Divider(height: 1, color: Colors.grey),
                 _buildCartItems(),
                 const Divider(height: 1, color: Colors.grey),
-                _buildVoucherCodeInput(),
+                _buildPricingSummary(),
               ],
             ),
           ),
@@ -76,9 +131,10 @@ class _CartPageState extends State<CartPage> {
               child: const Text(
                 "Add Shipping Address",
                 style: TextStyle(
-                    color: Colors.blue,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold),
+                  color: Colors.blue,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
           ),
@@ -89,32 +145,22 @@ class _CartPageState extends State<CartPage> {
 
   Widget _buildCartItems() {
     return Column(
-      children: [
-        _buildCartItem(
-          id: 1,
-          shopName: "AKASH Digital TV",
-          itemName: "AKASH HD Connection",
-          itemDetails: "Akash, Color Family:Black",
-          price: "৳ 4,299",
-          oldPrice: "৳ 4,499",
-          quantity: 1,
-          imageUrl: "https://via.placeholder.com/100",
-          isAvailable: true,
-        ),
-        const Divider(height: 1, color: Colors.grey),
-        _buildCartItem(
-          id: 2,
-          shopName: "",
-          itemName:
-              "Hair Bands for Kids Girl's Mini Elastic Soft Rubber Hair Bands-100 Piece",
-          itemDetails: "No Brand, Color Family:Multicolor",
-          price: "৳ 117",
-          oldPrice: "৳ 300",
-          quantity: 0,
-          imageUrl: "https://via.placeholder.com/100",
-          isAvailable: false,
-        ),
-      ],
+      children: _cartItems.map((item) {
+        return Column(
+          children: [
+            _buildCartItem(
+              id: item.id,
+              shopName: item.shopName,
+              itemName: item.itemName,
+              itemDetails: item.itemDetails,
+              price: item.price.toStringAsFixed(2),
+              quantity: item.quantity,
+              isAvailable: item.isAvailable,
+            ),
+            const Divider(height: 1, color: Colors.grey),
+          ],
+        );
+      }).toList(),
     );
   }
 
@@ -124,9 +170,7 @@ class _CartPageState extends State<CartPage> {
     required String itemName,
     required String itemDetails,
     required String price,
-    required String oldPrice,
     required int quantity,
-    required String imageUrl,
     required bool isAvailable,
   }) {
     return Padding(
@@ -145,7 +189,9 @@ class _CartPageState extends State<CartPage> {
                     Text(
                       shopName,
                       style: const TextStyle(
-                          fontSize: 14, fontWeight: FontWeight.bold),
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ],
                 ),
@@ -160,7 +206,7 @@ class _CartPageState extends State<CartPage> {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: Image.network(
-                  imageUrl,
+                  "https://via.placeholder.com/100",
                   height: 80,
                   width: 80,
                   fit: BoxFit.cover,
@@ -195,20 +241,11 @@ class _CartPageState extends State<CartPage> {
                     Row(
                       children: [
                         Text(
-                          price,
+                          "৳$price",
                           style: TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: isAvailable ? Colors.orange : Colors.grey,
-                          ),
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          oldPrice,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey,
-                            decoration: TextDecoration.lineThrough,
                           ),
                         ),
                       ],
@@ -218,16 +255,19 @@ class _CartPageState extends State<CartPage> {
               ),
               Checkbox(
                 value: _selectedItems.value.contains(id),
-                onChanged: (bool? value) {
-                  setState(() {
-                    if (value == true) {
-                      _selectedItems.value.add(id);
-                    } else {
-                      _selectedItems.value.remove(id);
-                    }
-                    _selectedItems.notifyListeners();
-                  });
-                },
+                onChanged: isAvailable
+                    ? (bool? value) {
+                        setState(() {
+                          if (value == true) {
+                            _selectedItems.value.add(id);
+                          } else {
+                            _selectedItems.value.remove(id);
+                          }
+                          _selectedItems.notifyListeners();
+                          _calculatePricing();
+                        });
+                      }
+                    : null,
               ),
             ],
           ),
@@ -236,21 +276,66 @@ class _CartPageState extends State<CartPage> {
     );
   }
 
-  Widget _buildVoucherCodeInput() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: TextField(
-        decoration: InputDecoration(
-          hintText: "Enter Voucher Code",
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
-          suffixIcon: IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: () {},
-          ),
+  Widget _buildPricingSummary() {
+    return Card(
+      margin: const EdgeInsets.all(16),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              'Price Details',
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            _buildPriceRow('Subtotal', _subtotal),
+            _buildPriceRow('Shipping Fee', _shippingFee),
+            _buildPriceRow('Tax', _tax),
+            const Divider(),
+            _buildPriceRow('Total', totalAmount, isTotal: true),
+          ],
         ),
       ),
     );
   }
+
+  Widget _buildPriceRow(String label, double amount, {bool isTotal = false}) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            label,
+            style: isTotal ? Theme.of(context).textTheme.titleMedium : null,
+          ),
+          Text(
+            '৳${amount.toStringAsFixed(2)}',
+            style: isTotal ? Theme.of(context).textTheme.titleMedium : null,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class CartItem {
+  final int id;
+  final String shopName;
+  final String itemName;
+  final String itemDetails;
+  final double price;
+  final int quantity;
+  final bool isAvailable;
+
+  CartItem({
+    required this.id,
+    required this.shopName,
+    required this.itemName,
+    required this.itemDetails,
+    required this.price,
+    required this.quantity,
+    required this.isAvailable,
+  });
 }

@@ -94,7 +94,7 @@ class FlashSale extends StatelessWidget {
                 borderRadius:
                     const BorderRadius.vertical(top: Radius.circular(12)),
                 child: Image.asset(
-                  item['image'] ?? 'assets/category/gadget.png',
+                  item['image'] ?? 'assets/category/genz.png',
                   width: 140,
                   height: 140,
                   fit: BoxFit.cover,
